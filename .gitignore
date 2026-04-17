@@ -1,0 +1,20 @@
+# Python
+backend/venv/
+backend/__pycache__/
+*.pyc
+
+# Env (VERY IMPORTANT)
+backend/.env
+
+# Database
+backend/db.sqlite3
+
+# Node
+fruits-frontend/node_modules/
+fruits-frontend/dist/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
