@@ -51,7 +51,7 @@ export default function TransactionModal({
   }, [editData]);
 
   const fetchAccounts = async () => {
-    const res = await API.get("accounts/");
+    const res = await API.get("/api/accounts/");
     setAccounts(res.data);
   };
 
