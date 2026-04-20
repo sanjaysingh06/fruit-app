@@ -133,9 +133,9 @@ export default function TransactionModal({
     };
 
     if (editData) {
-      await API.put(`transactions/${editData.id}/`, payload);
+      await API.put(`/api/transactions/${editData.id}/`, payload);
     } else {
-      await API.post("transactions/", payload);
+      await API.post("/api/transactions/", payload);
     }
 
     refresh();
