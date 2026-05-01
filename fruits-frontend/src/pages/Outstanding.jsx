@@ -5,9 +5,8 @@ import { useNavigate } from "react-router-dom";
 export default function Outstanding() {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
-
-  const [typeFilter, setTypeFilter] = useState(""); // 🔥 NEW
-  const [minAmount, setMinAmount] = useState("");   // 🔥 OPTIONAL
+  const [typeFilter, setTypeFilter] = useState("");
+  const [minAmount, setMinAmount] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -28,9 +27,7 @@ export default function Outstanding() {
     }
   };
 
-  // ===============================
-  // 🔍 FILTER LOGIC
-  // ===============================
+  // 🔍 FILTER
   const filtered = data.filter((row) => {
     const matchSearch = row.account_name
       .toLowerCase()
@@ -50,9 +47,7 @@ export default function Outstanding() {
     return matchSearch && matchType && matchAmount;
   });
 
-  // ===============================
   // 📊 SUMMARY
-  // ===============================
   const totalReceivable = filtered
     .filter((d) => d.balance > 0)
     .reduce((sum, d) => sum + d.balance, 0);
@@ -61,9 +56,7 @@ export default function Outstanding() {
     .filter((d) => d.balance < 0)
     .reduce((sum, d) => sum + d.balance, 0);
 
-  // ===============================
   // 🔁 RESET
-  // ===============================
   const handleReset = () => {
     setSearch("");
     setTypeFilter("");
@@ -71,20 +64,15 @@ export default function Outstanding() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-60px)]">
 
       {/* 🔷 HEADER */}
       <div className="bg-white p-4 rounded-xl shadow mb-3 shrink-0">
-
-        {/* Row 1 */}
         <div className="flex justify-between mb-3">
           <h2 className="text-2xl font-bold">Outstanding</h2>
         </div>
 
-        {/* Row 2 FILTERS */}
         <div className="flex flex-col md:flex-row gap-2">
-
-          {/* Search */}
           <input
             type="text"
             placeholder="Search account..."
@@ -93,7 +81,6 @@ export default function Outstanding() {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          {/* Type */}
           <select
             className="border px-3 py-2 rounded w-full md:w-40"
             value={typeFilter}
@@ -104,7 +91,6 @@ export default function Outstanding() {
             <option value="PAYABLE">Payable</option>
           </select>
 
-          {/* Amount */}
           <input
             type="number"
             placeholder="Min Amount"
@@ -113,23 +99,20 @@ export default function Outstanding() {
             onChange={(e) => setMinAmount(e.target.value)}
           />
 
-          {/* Reset */}
           <button
             onClick={handleReset}
             className="border px-4 py-2 rounded hover:bg-gray-100"
           >
             Reset
           </button>
-
         </div>
       </div>
 
       {/* 🔄 CONTENT */}
-      <div className="flex-1 min-w-0 bg-white rounded-xl shadow p-4 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 bg-white rounded-xl shadow p-4">
 
         {/* 📊 SUMMARY */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-
+        <div className="grid grid-cols-2 gap-3 mb-4 shrink-0">
           <div className="bg-green-50 border border-green-200 p-4 rounded">
             <div className="text-sm text-gray-600">Receivable</div>
             <div className="text-lg font-bold text-green-600">
@@ -143,17 +126,16 @@ export default function Outstanding() {
               ₹{totalPayable}
             </div>
           </div>
-
         </div>
 
         {/* 🔄 LOADING */}
         {loading ? (
           <div className="text-center py-10">Loading...</div>
         ) : (
-          <div className="h-full">
+          <div className="flex-1 flex flex-col min-h-0">
 
-            {/* 💻 TABLE */}
-            <div className="hidden md:block h-full overflow-y-auto">
+            {/* 💻 DESKTOP TABLE */}
+            <div className="hidden md:block flex-1 overflow-y-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-100 sticky top-0">
                   <tr>
@@ -174,7 +156,6 @@ export default function Outstanding() {
                       }
                     >
                       <td className="p-3">{row.account_name}</td>
-
                       <td
                         className={`p-3 font-semibold ${
                           row.balance > 0
@@ -192,8 +173,8 @@ export default function Outstanding() {
               </table>
             </div>
 
-            {/* 📱 MOBILE */}
-            <div className="md:hidden space-y-3 overflow-y-auto">
+            {/* 📱 MOBILE LIST */}
+            <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-20">
               {filtered.map((row) => (
                 <div
                   key={row.account_id}
