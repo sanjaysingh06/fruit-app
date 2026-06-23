@@ -86,27 +86,56 @@ export default function Ledger() {
   // 📄 PDF
   // ===============================
   const handlePrint = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF("landscape");
     const pageWidth = doc.internal.pageSize.getWidth();
 
     doc.setFontSize(16);
-    doc.text("SHUBHAM FRUITS COMPANY", pageWidth / 2, 15, { align: "center" });
+    doc.text("SHUBHAM FRUITS COMPANY", pageWidth / 2, 15, {
+      align: "center",
+    });
 
-    doc.text(`Party: ${selectedAccountName}`, 14, 30);
+    doc.setFontSize(12);
+    doc.text(`Party : ${selectedAccountName}`, 14, 28);
 
     const tableData = ledger.map((row) => [
       row.date,
       row.transaction_type,
       row.reference,
+      row.item_name || "",
+      row.quantity || "",
+      row.weight || "",
+      row.rate || "",
       row.debit || "",
       row.credit || "",
       row.balance,
     ]);
-
     autoTable(doc, {
-      startY: 40,
-      head: [["Date", "Type", "Ref", "Debit", "Credit", "Balance"]],
+      startY: 35,
+      head: [[
+        "Date",
+        "Type",
+        "Reference",
+        "Item",
+        "Qty",
+        "Weight",
+        "Rate",
+        "Debit",
+        "Credit",
+        "Balance",
+      ]],
       body: tableData,
+      styles: {
+        fontSize: 9,
+        cellPadding: 2,
+      },
+      headStyles: {
+        fillColor: [0, 0, 0],
+        textColor: 255,
+        halign: "center",
+      },
+      bodyStyles: {
+        halign: "center",
+      },
     });
 
     doc.save(`${selectedAccountName}_ledger.pdf`);
@@ -236,6 +265,10 @@ export default function Ledger() {
                     <th className="p-2 text-left">Date</th>
                     <th className="p-2 text-left">Type</th>
                     <th className="p-2 text-left">Ref</th>
+                    <th className="p-2 text-left">Item</th>
+                    <th className="p-2 text-left">Qty</th>
+                    <th className="p-2 text-left">Weight</th>
+                    <th className="p-2 text-left">Rate</th>
                     <th className="p-2 text-left">Debit</th>
                     <th className="p-2 text-left">Credit</th>
                     <th className="p-2 text-left">Balance</th>
@@ -248,6 +281,10 @@ export default function Ledger() {
                       <td className="p-2">{row.date}</td>
                       <td className="p-2">{row.transaction_type}</td>
                       <td className="p-2">{row.reference}</td>
+                      <td className="p-2">{row.item_name || "-"}</td>
+                      <td className="p-2">{row.quantity || "-"}</td>
+                      <td className="p-2">{row.weight || "-"}</td>
+                      <td className="p-2">{row.rate || "-"}</td>
                       <td className="p-2 text-red-500">{row.debit || "-"}</td>
                       <td className="p-2 text-green-600">{row.credit || "-"}</td>
                       <td className="p-2 font-semibold">₹{row.balance}</td>
@@ -264,6 +301,10 @@ export default function Ledger() {
                   <div className="font-semibold">{row.date}</div>
                   <div>Type: {row.transaction_type}</div>
                   <div>Ref: {row.reference}</div>
+                  <div>Item: {row.item_name || "-"}</div>
+                  <div>Qty: {row.quantity || "-"}</div>
+                  <div>Weight: {row.weight || "-"}</div>
+                  <div>Rate: ₹{row.rate || "-"}</div>
                   <div className="text-red-500">Debit: {row.debit || "-"}</div>
                   <div className="text-green-600">Credit: {row.credit || "-"}</div>
                   <div className="font-bold">Balance: ₹{row.balance}</div>

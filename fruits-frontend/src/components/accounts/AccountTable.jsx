@@ -10,6 +10,7 @@ export default function AccountTable({ data, onEdit, onDelete }) {
               <th className="p-3 text-left">Name</th>
               <th className="p-3 text-left">Role</th>
               <th className="p-3 text-left">Opening</th>
+              <th className="p-3 text-left">Closing</th>
               <th className="p-3 text-left">Phone</th>
               <th className="p-3 text-left">Actions</th>
             </tr>
@@ -25,6 +26,15 @@ export default function AccountTable({ data, onEdit, onDelete }) {
                   </span>
                 </td>
                 <td className="p-3">₹{acc.opening_balance}</td>
+                <td
+                  className={`p-3 font-semibold ${
+                    Number(acc.closing_balance) >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  ₹{Number(acc.closing_balance || 0).toFixed(2)}
+                </td>
                 <td className="p-3">{acc.phone || "-"}</td>
                 <td className="p-3">
                   <button
@@ -58,11 +68,24 @@ export default function AccountTable({ data, onEdit, onDelete }) {
             <div className="text-sm text-gray-500 mt-1">
               {acc.role}
             </div>
-
+{/* 
             <div className="mt-2 text-sm">
               <span className="font-medium">Balance:</span> ₹{acc.opening_balance}
-            </div>
+            </div> */}
 
+            <div className="text-sm">
+              <span className="font-medium">Closing:</span>
+
+              <span
+                className={`ml-1 font-semibold ${
+                  Number(acc.closing_balance) >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                ₹{Number(acc.closing_balance || 0).toFixed(2)}
+              </span>
+            </div>
             <div className="text-sm">
               <span className="font-medium">Phone:</span> {acc.phone || "-"}
             </div>
