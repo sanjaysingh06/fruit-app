@@ -10,11 +10,15 @@ from accounts.models import Account
 from django.db.models import Sum
 from rest_framework.permissions import IsAuthenticated
 
+from django.db.models import Prefetch
+
+
 
 class TransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Transaction.objects.all().order_by('-date')
     serializer_class = TransactionSerializer
+
 
 @api_view(['GET'])
 def account_ledger(request, account_id):
@@ -22,16 +26,16 @@ def account_ledger(request, account_id):
     to_date = request.GET.get('to_date')
     txn_type = request.GET.get('type')
 
-    from accounts.models import Account
-
     account = Account.objects.get(id=account_id)
 
-    # 🔥 START WITH OPENING BALANCE
+    # Opening Balance
     balance = account.opening_balance
 
-    entries = TransactionEntry.objects.filter(
-        account_id=account_id
-    ).select_related('transaction')
+    entries = (
+        TransactionEntry.objects.filter(account_id=account_id)
+        .select_related("transaction")
+        .prefetch_related("transaction__items")
+    )
 
     if from_date:
         entries = entries.filter(transaction__date__gte=from_date)
@@ -42,31 +46,53 @@ def account_ledger(request, account_id):
     if txn_type:
         entries = entries.filter(transaction__transaction_type=txn_type)
 
-    entries = entries.order_by('transaction__date', 'id')
+    entries = entries.order_by("transaction__date", "id")
 
     ledger = []
 
-    # 🔥 ADD OPENING ROW
+    # Opening Balance Row
     ledger.append({
         "date": "",
         "transaction_type": "OPENING",
         "reference": "",
+        "item_name": "",
+        "quantity": "",
+        "rate": "",
         "debit": 0,
         "credit": 0,
-        "balance": balance
+        "balance": balance,
     })
 
     for entry in entries:
         balance += entry.debit
         balance -= entry.credit
 
+        items = entry.transaction.items.all()
+
+        if items.exists():
+            item_names = ", ".join([item.item_name for item in items])
+            quantities = ", ".join([str(item.quantity or "") for item in items])
+            weights = ", ".join([str(item.weight or "") for item in items])
+            rates = ", ".join([str(item.rate or "") for item in items])
+        else:
+            item_names = ""
+            quantities = ""
+            weights = ""
+            rates = ""
+
         ledger.append({
             "date": entry.transaction.date,
             "transaction_type": entry.transaction.transaction_type,
             "reference": entry.transaction.reference,
+
+            "item_name": item_names,
+            "quantity": quantities,
+            "weight": weights,
+            "rate": rates,
+
             "debit": entry.debit,
             "credit": entry.credit,
-            "balance": balance
+            "balance": balance,
         })
 
     return Response(ledger)
