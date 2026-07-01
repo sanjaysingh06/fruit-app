@@ -69,31 +69,62 @@ def account_ledger(request, account_id):
 
         items = entry.transaction.items.all()
 
-        if items.exists():
-            item_names = ", ".join([item.item_name for item in items])
-            quantities = ", ".join([str(item.quantity or "") for item in items])
-            weights = ", ".join([str(item.weight or "") for item in items])
-            rates = ", ".join([str(item.rate or "") for item in items])
+        # Credit entries → no item details
+        if entry.credit > 0:
+            ledger.append({
+                "date": entry.transaction.date,
+                "transaction_type": entry.transaction.transaction_type,
+                "reference": entry.transaction.reference,
+
+                "item_name": "",
+                "quantity": "",
+                "weight": "",
+                "rate": "",
+
+                "debit": "",
+                "credit": entry.credit,
+                "balance": balance,
+            })
+
+        # Debit entries with items
+        elif items.exists():
+
+            first_row = True
+
+            for item in items:
+                ledger.append({
+                    "date": entry.transaction.date if first_row else "",
+                    "transaction_type": entry.transaction.transaction_type if first_row else "",
+                    "reference": entry.transaction.reference if first_row else "",
+
+                    "item_name": item.item_name,
+                    "quantity": item.quantity,
+                    "weight": item.weight,
+                    "rate": item.rate,
+
+                    "debit": entry.debit if first_row else "",
+                    "credit": "",
+                    "balance": balance if first_row else "",
+                })
+
+                first_row = False
+
+        # Transactions without items
         else:
-            item_names = ""
-            quantities = ""
-            weights = ""
-            rates = ""
+            ledger.append({
+                "date": entry.transaction.date,
+                "transaction_type": entry.transaction.transaction_type,
+                "reference": entry.transaction.reference,
 
-        ledger.append({
-            "date": entry.transaction.date,
-            "transaction_type": entry.transaction.transaction_type,
-            "reference": entry.transaction.reference,
+                "item_name": "",
+                "quantity": "",
+                "weight": "",
+                "rate": "",
 
-            "item_name": item_names,
-            "quantity": quantities,
-            "weight": weights,
-            "rate": rates,
-
-            "debit": entry.debit,
-            "credit": entry.credit,
-            "balance": balance,
-        })
+                "debit": entry.debit,
+                "credit": entry.credit,
+                "balance": balance,
+            })
 
     return Response(ledger)
 

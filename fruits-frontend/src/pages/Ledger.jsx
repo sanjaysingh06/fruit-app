@@ -101,10 +101,12 @@ export default function Ledger() {
       row.date,
       row.transaction_type,
       row.reference,
+
       row.item_name || "",
       row.quantity || "",
       row.weight || "",
       row.rate || "",
+
       row.debit || "",
       row.credit || "",
       row.balance,
@@ -126,7 +128,9 @@ export default function Ledger() {
       body: tableData,
       styles: {
         fontSize: 9,
-        cellPadding: 2,
+        cellPadding: 3,
+        overflow: "linebreak",
+        valign: "middle",
       },
       headStyles: {
         fillColor: [0, 0, 0],
@@ -135,6 +139,12 @@ export default function Ledger() {
       },
       bodyStyles: {
         halign: "center",
+      },
+      columnStyles: {
+        3: {
+          halign: "left",
+          cellWidth: 35,
+        },
       },
     });
 
