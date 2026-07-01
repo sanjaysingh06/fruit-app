@@ -1,5 +1,9 @@
+
 from pathlib import Path
 import os
+
+from dotenv import load_dotenv
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,12 +18,15 @@ SECRET_KEY = os.getenv(
     "django-insecure-2c*on$=x0e-js6jvp!&hpkke#prfp2!s(f3mg&seo=$zb0zhb%"
 )
 
-DEBUG = os.getenv("DEBUG", "True").strip().lower() == "true"
+DEBUG = os.getenv("DEBUG", "False").strip().lower() == "true"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost,shubhamfruits.com,[www.shubhamfruits.com](http://www.shubhamfruits.com)"
-).split(",")
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "72.62.196.14",
+    "shubhamfruits.com",
+    "www.shubhamfruits.com",
+]
 
 # ========================
 
@@ -88,7 +95,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # ========================
 
-USE_SQLITE = os.getenv("USE_SQLITE", "True").strip().lower() == "true"
+USE_SQLITE = os.getenv("USE_SQLITE", "False").strip().lower() == "true"
 
 if USE_SQLITE:
     # LOCAL (SQLite)
@@ -151,10 +158,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # ========================
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS  = False
 
 CORS_ALLOWED_ORIGINS = [
-"http://localhost:5173",
+    "https://shubhamfruits.com"
 ]
 
 CORS_ALLOW_HEADERS = [
