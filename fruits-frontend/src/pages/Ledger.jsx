@@ -156,8 +156,12 @@ export default function Ledger() {
     doc.text("Closing Balance :", 14, 58);
 
     doc.setTextColor(220, 0, 0);
+
+    const closingBal = Math.abs(summary?.balance || 0);
+    const closingType = summary?.balance >= 0 ? "Dr" : "Cr";
+
     doc.text(
-      `Rs. ${summary?.balance?.toLocaleString() || 0}`,
+      `Rs. ${closingBal.toLocaleString()} ${closingType}`,
       65,
       58
     );
@@ -404,10 +408,17 @@ export default function Ledger() {
                       <td className="p-2">{row.quantity || "-"}</td>
                       <td className="p-2">{row.weight || "-"}</td>
                       <td className="p-2">{row.rate || "-"}</td>
-                      <td className="p-2 text-red-500">{row.debit || "-"}</td>
-                      <td className="p-2 text-green-600">{row.credit || "-"}</td>
+                      <td className="p-2 text-red-500">
+                        {row.debit !== "" ? row.debit : "-"}
+                      </td>
+
+                      <td className="p-2 text-green-600">
+                        {row.credit !== "" ? row.credit : "-"}
+                      </td>
                       <td className="p-2 font-semibold">
-                        ₹{row.balance} {row.balance_type}
+                        {row.balance !== "" && row.balance !== null
+                          ? `₹${row.balance} ${row.balance_type || ""}`
+                          : ""}
                       </td>
                     </tr>
                   ))}
@@ -425,10 +436,17 @@ export default function Ledger() {
                   <div>Qty: {row.quantity || "-"}</div>
                   <div>Weight: {row.weight || "-"}</div>
                   <div>Rate: ₹{row.rate || "-"}</div>
-                  <div className="text-red-500">Debit: {row.debit || "-"}</div>
-                  <div className="text-green-600">Credit: {row.credit || "-"}</div>
+                  <td className="p-2 text-red-500">
+                    {row.debit !== "" ? row.debit : "-"}
+                  </td>
+
+                  <td className="p-2 text-green-600">
+                    {row.credit !== "" ? row.credit : "-"}
+                  </td>
                   <div className="font-bold">
-                    Balance: ₹{row.balance} {row.balance_type}
+                    {row.balance !== "" && row.balance !== null
+                      ? `Balance: ₹${row.balance} ${row.balance_type || ""}`
+                      : ""}
                   </div>
                 </div>
               ))}
