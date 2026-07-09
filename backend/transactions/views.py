@@ -60,7 +60,8 @@ def account_ledger(request, account_id):
         "rate": "",
         "debit": 0,
         "credit": 0,
-        "balance": balance,
+        "balance": abs(balance),
+        "balance_type": "Dr" if balance >= 0 else "Cr",
     })
 
     for entry in entries:

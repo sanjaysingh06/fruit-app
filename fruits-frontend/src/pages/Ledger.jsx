@@ -188,7 +188,7 @@ export default function Ledger() {
 
       row.debit || "",
       row.credit || "",
-      row.balance,
+      row.balance ? `${row.balance} ${row.balance_type}` : "",
     ]);
     autoTable(doc, {
       didDrawPage: function () {
@@ -269,7 +269,7 @@ export default function Ledger() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] overflow-hidden">
+    <div className="flex flex-col min-h-[calc(100vh-60px)]">
 
       {/* 🔷 HEADER */}
       <div className="bg-white p-4 rounded-xl shadow mb-3 shrink-0">
@@ -337,7 +337,7 @@ export default function Ledger() {
       </div>
 
       {/* 🔄 CONTENT */}
-      <div className="flex-1 min-w-0 bg-white rounded-xl shadow p-4 overflow-hidden">
+      <div className="flex-1 min-w-0 bg-white rounded-xl shadow p-4 overflow-y-auto">
 
         {loading ? (
           <div className="text-center py-10">Loading...</div>
@@ -351,7 +351,8 @@ export default function Ledger() {
                 <div className="flex justify-between mt-2 text-sm">
                   <div>Opening: ₹{openingBalance}</div>
                   <div className={summary.balance >= 0 ? "text-green-600" : "text-red-500"}>
-                    Closing: ₹{summary.balance}
+                    Closing: ₹{Math.abs(summary.balance)}
+                    {summary.balance >= 0 ? " Dr" : " Cr"}
                   </div>
                 </div>
               </div>
@@ -403,7 +404,9 @@ export default function Ledger() {
                       <td className="p-2">{row.rate || "-"}</td>
                       <td className="p-2 text-red-500">{row.debit || "-"}</td>
                       <td className="p-2 text-green-600">{row.credit || "-"}</td>
-                      <td className="p-2 font-semibold">₹{row.balance}</td>
+                      <td className="p-2 font-semibold">
+                        ₹{row.balance} {row.balance_type}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -411,7 +414,7 @@ export default function Ledger() {
             </div>
 
             {/* MOBILE */}
-            <div className="md:hidden space-y-2 overflow-y-auto">
+            <div className="md:hidden space-y-2 pb-20">
               {ledger.map((row, i) => (
                 <div key={i} className="border p-3 rounded">
                   <div className="font-semibold">{row.date}</div>
@@ -422,7 +425,9 @@ export default function Ledger() {
                   <div>Rate: ₹{row.rate || "-"}</div>
                   <div className="text-red-500">Debit: {row.debit || "-"}</div>
                   <div className="text-green-600">Credit: {row.credit || "-"}</div>
-                  <div className="font-bold">Balance: ₹{row.balance}</div>
+                  <div className="font-bold">
+                    Balance: ₹{row.balance} {row.balance_type}
+                  </div>
                 </div>
               ))}
             </div>
