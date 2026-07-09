@@ -88,7 +88,11 @@ def account_ledger(request, account_id):
 
                     "debit": entry.debit if first_row else "",
                     "credit": entry.credit if first_row else "",
-                    "balance": balance if first_row else "",
+
+                    "balance": abs(balance) if first_row else "",
+                    "balance_type": (
+                        "Dr" if balance >= 0 else "Cr"
+                    ) if first_row else "",
                 })
 
                 first_row = False
@@ -107,71 +111,10 @@ def account_ledger(request, account_id):
 
                 "debit": entry.debit if entry.debit else "",
                 "credit": entry.credit if entry.credit else "",
-                "balance": balance,
+
+                "balance": abs(balance),
+                "balance_type": "Dr" if balance >= 0 else "Cr",
             })
-
-    # for entry in entries:
-    #     balance += entry.debit
-    #     balance -= entry.credit
-
-    #     items = entry.transaction.items.all()
-
-    #     # Credit entries → no item details
-    #     if entry.credit > 0:
-    #         ledger.append({
-    #             "date": entry.transaction.date,
-    #             "transaction_type": entry.transaction.transaction_type,
-    #             "reference": entry.transaction.reference,
-
-    #             "item_name": "",
-    #             "quantity": "",
-    #             "weight": "",
-    #             "rate": "",
-
-    #             "debit": "",
-    #             "credit": entry.credit,
-    #             "balance": balance,
-    #         })
-
-    #     # Debit entries with items
-    #     elif items.exists():
-
-    #         first_row = True
-
-    #         for item in items:
-    #             ledger.append({
-    #                 "date": entry.transaction.date if first_row else "",
-    #                 "transaction_type": entry.transaction.transaction_type if first_row else "",
-    #                 "reference": entry.transaction.reference if first_row else "",
-
-    #                 "item_name": item.item_name,
-    #                 "quantity": item.quantity,
-    #                 "weight": item.weight,
-    #                 "rate": item.rate,
-
-    #                 "debit": entry.debit if first_row else "",
-    #                 "credit": "",
-    #                 "balance": balance if first_row else "",
-    #             })
-
-    #             first_row = False
-
-    #     # Transactions without items
-    #     else:
-    #         ledger.append({
-    #             "date": entry.transaction.date,
-    #             "transaction_type": entry.transaction.transaction_type,
-    #             "reference": entry.transaction.reference,
-
-    #             "item_name": "",
-    #             "quantity": "",
-    #             "weight": "",
-    #             "rate": "",
-
-    #             "debit": entry.debit,
-    #             "credit": entry.credit,
-    #             "balance": balance,
-    #         })
 
     return Response(ledger)
 
@@ -241,7 +184,7 @@ def all_accounts_outstanding(request):
         total_debit = totals['total_debit'] or 0
         total_credit = totals['total_credit'] or 0
 
-        balance = total_debit - total_credit
+        balance = acc.opening_balance + total_debit - total_credit
 
         data.append({
             "account_id": acc.id,

@@ -188,7 +188,9 @@ export default function Ledger() {
 
       row.debit || "",
       row.credit || "",
-      row.balance ? `${row.balance} ${row.balance_type}` : "",
+      row.balance
+        ? `${row.balance}${row.balance_type ? ` ${row.balance_type}` : ""}`
+        : ""
     ]);
     autoTable(doc, {
       didDrawPage: function () {
