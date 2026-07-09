@@ -355,7 +355,10 @@ export default function Ledger() {
                 <div className="font-semibold">{selectedAccountName}</div>
 
                 <div className="flex justify-between mt-2 text-sm">
-                  <div>Opening: ₹{openingBalance}</div>
+                  <div>
+                    Opening: ₹{ledger[0]?.balance || 0}
+                    {ledger[0]?.balance_type ? ` ${ledger[0].balance_type}` : ""}
+                  </div>
                   <div className={summary.balance >= 0 ? "text-green-600" : "text-red-500"}>
                     Closing: ₹{Math.abs(summary.balance)}
                     {summary.balance >= 0 ? " Dr" : " Cr"}

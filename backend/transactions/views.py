@@ -29,7 +29,10 @@ def account_ledger(request, account_id):
     account = Account.objects.get(id=account_id)
 
     # Opening Balance
-    balance = account.opening_balance
+    if account.opening_balance_type == "Cr":
+        balance = -account.opening_balance
+    else:
+        balance = account.opening_balance
 
     entries = (
         TransactionEntry.objects.filter(account_id=account_id)
@@ -130,7 +133,15 @@ def account_outstanding(request, account_id):
     total_debit = totals['total_debit'] or 0
     total_credit = totals['total_credit'] or 0
 
-    balance = total_debit - total_credit
+    account = Account.objects.get(id=account_id)
+
+    opening_balance = (
+        -account.opening_balance
+        if account.opening_balance_type == "Cr"
+        else account.opening_balance
+    )
+
+    balance = opening_balance + total_debit - total_credit
 
     return Response({
         "account_id": account_id,
@@ -156,7 +167,13 @@ def account_summary(request, account_id):
     total_credit = totals['total_credit'] or 0
 
     # 🔥 INCLUDE OPENING BALANCE
-    balance = account.opening_balance + total_debit - total_credit
+    opening_balance = (
+        -account.opening_balance
+        if account.opening_balance_type == "Cr"
+        else account.opening_balance
+    )
+
+    balance = opening_balance + total_debit - total_credit
 
     return Response({
         "account_id": account_id,
@@ -184,7 +201,13 @@ def all_accounts_outstanding(request):
         total_debit = totals['total_debit'] or 0
         total_credit = totals['total_credit'] or 0
 
-        balance = acc.opening_balance + total_debit - total_credit
+        opening_balance = (
+            -acc.opening_balance
+            if acc.opening_balance_type == "Cr"
+            else acc.opening_balance
+        )
+
+        balance = opening_balance + total_debit - total_credit
 
         data.append({
             "account_id": acc.id,

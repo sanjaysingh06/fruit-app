@@ -34,9 +34,27 @@ class Account(models.Model):
         null=True
     )
 
-    opening_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    opening_balance = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
 
-    phone = models.CharField(max_length=15, blank=True, null=True)
+    opening_balance_type = models.CharField(
+        max_length=2,
+        choices=[
+            ('Dr', 'Debit'),
+            ('Cr', 'Credit')
+        ],
+        default='Dr'
+    )
+
+    phone = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True
+    )
+    
     address = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -27,6 +27,7 @@ export default function AccountModal({
     name: "",
     role: "",
     opening_balance: 0,
+    opening_balance_type: "Dr",
     phone: "",
     address: "",
   });
@@ -46,6 +47,7 @@ export default function AccountModal({
           name: editData.name || "",
           role: editData.role || "",
           opening_balance: editData.opening_balance || 0,
+          opening_balance_type: editData.opening_balance_type || "Dr",
           phone: editData.phone || "",
           address: editData.address || "",
         });
@@ -60,6 +62,7 @@ export default function AccountModal({
       name: "",
       role: "",
       opening_balance: 0,
+      opening_balance_type: "Dr",
       phone: "",
       address: "",
     });
@@ -164,15 +167,21 @@ export default function AccountModal({
           </TextField>
 
           <TextField
-            label="Opening Balance"
-            type="number"
+            select
+            label="Opening Type"
             fullWidth
             margin="dense"
-            value={form.opening_balance}
+            value={form.opening_balance_type}
             onChange={(e) =>
-              setForm({ ...form, opening_balance: e.target.value })
+              setForm({
+                ...form,
+                opening_balance_type: e.target.value,
+              })
             }
-          />
+          >
+            <MenuItem value="Dr">Debit (Dr)</MenuItem>
+            <MenuItem value="Cr">Credit (Cr)</MenuItem>
+          </TextField>
 
           <TextField
             label="Phone"

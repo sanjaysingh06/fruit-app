@@ -25,7 +25,9 @@ export default function AccountTable({ data, onEdit, onDelete }) {
                     {acc.role}
                   </span>
                 </td>
-                <td className="p-3">₹{acc.opening_balance}</td>
+                <td className="p-3">
+                  ₹{acc.opening_balance} {acc.opening_balance_type || "Dr"}
+                </td>
                 <td
                   className={`p-3 font-semibold ${
                     Number(acc.closing_balance) >= 0
@@ -68,10 +70,11 @@ export default function AccountTable({ data, onEdit, onDelete }) {
             <div className="text-sm text-gray-500 mt-1">
               {acc.role}
             </div>
-{/* 
+
             <div className="mt-2 text-sm">
-              <span className="font-medium">Balance:</span> ₹{acc.opening_balance}
-            </div> */}
+              <span className="font-medium">Opening:</span>
+              {" "}₹{acc.opening_balance} {acc.opening_balance_type || "Dr"}
+            </div>
 
             <div className="text-sm">
               <span className="font-medium">Closing:</span>

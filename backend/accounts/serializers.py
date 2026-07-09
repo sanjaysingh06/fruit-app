@@ -39,4 +39,10 @@ class AccountSerializer(serializers.ModelSerializer):
         total_debit = totals["total_debit"] or 0
         total_credit = totals["total_credit"] or 0
 
-        return obj.opening_balance + total_debit - total_credit
+        opening_balance = (
+            -obj.opening_balance
+            if obj.opening_balance_type == "Cr"
+            else obj.opening_balance
+        )
+
+        return opening_balance + total_debit - total_credit
