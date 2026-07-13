@@ -167,6 +167,20 @@ export default function AccountModal({
           </TextField>
 
           <TextField
+            label="Opening Balance"
+            type="number"
+            fullWidth
+            margin="dense"
+            value={form.opening_balance}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                opening_balance: e.target.value,
+              })
+            }
+          />
+
+          <TextField
             select
             label="Opening Type"
             fullWidth
