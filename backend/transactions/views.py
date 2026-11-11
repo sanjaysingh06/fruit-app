@@ -20,6 +20,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
 
 
+
 @api_view(['GET'])
 def account_ledger(request, account_id):
     from_date = request.GET.get('from_date')
@@ -28,12 +29,32 @@ def account_ledger(request, account_id):
 
     account = Account.objects.get(id=account_id)
 
-    # Opening Balance
+    # Original account opening balance
     if account.opening_balance_type == "Cr":
         balance = -account.opening_balance
     else:
         balance = account.opening_balance
 
+    # Calculate all transactions BEFORE the selected start date.
+    # Do not apply transaction type filter to opening balance.
+    if from_date:
+        previous_totals = TransactionEntry.objects.filter(
+            account_id=account_id,
+            transaction__date__lt=from_date
+        ).aggregate(
+            total_debit=Sum('debit'),
+            total_credit=Sum('credit')
+        )
+
+        previous_debit = previous_totals['total_debit'] or 0
+        previous_credit = previous_totals['total_credit'] or 0
+
+        balance += previous_debit - previous_credit
+
+    # Save the calculated opening balance for this period
+    period_opening_balance = balance
+
+    # Fetch transactions for selected date range
     entries = (
         TransactionEntry.objects.filter(account_id=account_id)
         .select_related("transaction")
@@ -47,24 +68,27 @@ def account_ledger(request, account_id):
         entries = entries.filter(transaction__date__lte=to_date)
 
     if txn_type:
-        entries = entries.filter(transaction__transaction_type=txn_type)
+        entries = entries.filter(
+            transaction__transaction_type=txn_type
+        )
 
     entries = entries.order_by("transaction__date", "id")
 
     ledger = []
 
-    # Opening Balance Row
+    # Period Opening Balance Row
     ledger.append({
         "date": "",
         "transaction_type": "OPENING",
         "reference": "",
         "item_name": "",
         "quantity": "",
+        "weight": "",
         "rate": "",
         "debit": 0,
         "credit": 0,
-        "balance": abs(balance),
-        "balance_type": "Dr" if balance >= 0 else "Cr",
+        "balance": abs(period_opening_balance),
+        "balance_type": "Dr" if period_opening_balance >= 0 else "Cr",
     })
 
     for entry in entries:
@@ -73,53 +97,50 @@ def account_ledger(request, account_id):
 
         items = entry.transaction.items.all()
 
-        # Show items whenever transaction has items
         if items.exists():
-
             first_row = True
 
             for item in items:
                 ledger.append({
                     "date": entry.transaction.date if first_row else "",
-                    "transaction_type": entry.transaction.transaction_type if first_row else "",
-                    "reference": entry.transaction.reference if first_row else "",
-
+                    "transaction_type": (
+                        entry.transaction.transaction_type if first_row else ""
+                    ),
+                    "reference": (
+                        entry.transaction.reference if first_row else ""
+                    ),
                     "item_name": item.item_name,
                     "quantity": item.quantity,
                     "weight": item.weight,
                     "rate": item.rate,
-
                     "debit": entry.debit if first_row else "",
                     "credit": entry.credit if first_row else "",
-
                     "balance": abs(balance) if first_row else "",
                     "balance_type": (
-                        "Dr" if balance >= 0 else "Cr"
-                    ) if first_row else "",
+                        ("Dr" if balance >= 0 else "Cr")
+                        if first_row else ""
+                    ),
                 })
 
                 first_row = False
 
-        # Transactions without items
         else:
             ledger.append({
                 "date": entry.transaction.date,
                 "transaction_type": entry.transaction.transaction_type,
                 "reference": entry.transaction.reference,
-
                 "item_name": "",
                 "quantity": "",
                 "weight": "",
                 "rate": "",
-
                 "debit": entry.debit if entry.debit else "",
                 "credit": entry.credit if entry.credit else "",
-
                 "balance": abs(balance),
                 "balance_type": "Dr" if balance >= 0 else "Cr",
             })
 
     return Response(ledger)
+
 
 @api_view(['GET'])
 def account_outstanding(request, account_id):
